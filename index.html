@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1e3a5f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="بل سلطان">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="sultan-icon-180.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="sultan-icon-192.png">
+<title>دفتر بل سلطان</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--primary:#1e3a5f;--bg:#eef2f7;--card:#fff;--border:#cfd9e6;--green:#157347;--red:#b42318;--blue:#1d4ed8;--text:#1b2a3d;--muted:#5b6b80}
+body.dark{--bg:#14161b;--card:#1e2129;--border:#383c46;--text:#e6e6e6;--muted:#9aa1b0}
+html,body{background:var(--bg);direction:rtl}
+body{font-family:Tahoma,"Vazirmatn",system-ui,sans-serif;font-size:13px;color:var(--text);max-width:560px;margin:0 auto;padding:8px 8px 90px;font-weight:800;
+  padding-top:max(8px,env(safe-area-inset-top));padding-bottom:calc(90px + env(safe-area-inset-bottom))}
+button,input,select,textarea{font:inherit;font-weight:800;color:inherit}
+input::placeholder{font-weight:700}
+td,th,p,small,label,span,b{font-weight:800}
+.bill .meta,.sum small,.fld small,.acc small,.empty{font-weight:800}
+button{cursor:pointer}
+.hdr{display:flex;align-items:center;gap:10px;background:var(--primary);color:#fff;border-radius:12px;padding:10px 12px;margin-bottom:8px}
+.hdr .logo{width:38px;height:28px;flex:0 0 38px}
+.hdr .t{flex:1}
+.hdr .t b{display:block;font-size:16px}
+.hdr .t small{font-size:11px;opacity:.8}
+.hdr button{background:rgba(255,255,255,.18);border:0;border-radius:8px;color:#fff;width:36px;height:36px;font-size:17px}
+.tabs{display:flex;gap:6px;margin-bottom:8px}
+.tabs button{flex:1;padding:9px 4px;border:1.5px solid var(--border);border-radius:10px;background:var(--card);font-weight:800;font-size:13px}
+.tabs button.on{background:var(--primary);border-color:var(--primary);color:#fff}
+.tools{display:flex;gap:6px;margin-bottom:8px}
+.tools input{flex:1;min-width:0;height:40px;border:1.5px solid var(--border);border-radius:10px;padding:0 10px;background:var(--card)}
+.tools button{padding:0 10px;border:1.5px solid var(--border);border-radius:10px;background:var(--card);font-size:12px;font-weight:800}
+.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
+.sum div{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:7px 4px;text-align:center}
+.sum small{display:block;color:var(--muted);font-size:10.5px}
+.sum b{display:block;font-size:13px;margin-top:2px;overflow-wrap:anywhere}
+.sum .g b{color:var(--green)}.sum .r b{color:var(--red)}
+.bill{background:var(--card);border:1px solid var(--border);border-right:5px solid var(--blue);border-radius:11px;padding:9px 10px;margin-bottom:7px}
+.bill.sale{border-right-color:var(--green)}
+.bill .top{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.bill .nm{font-weight:800;font-size:14px;overflow-wrap:anywhere}
+.bill .tag{font-size:10.5px;padding:2px 8px;border-radius:8px;background:#e6efff;color:#1d4ed8;white-space:nowrap}
+.bill.sale .tag{background:#e3f6ea;color:#157347}
+.bill .meta{color:var(--muted);font-size:11.5px;margin:3px 0}
+.bill .nums{display:flex;gap:10px;font-size:12px;flex-wrap:wrap}
+.bill .nums .d{color:var(--red);font-weight:800}
+.bill .acts{display:flex;gap:6px;margin-top:7px}
+.bill .acts button,.mbtn{flex:1;padding:7px 4px;border:1px solid var(--border);border-radius:8px;background:var(--bg);font-size:12px;font-weight:800}
+.empty{text-align:center;color:var(--muted);padding:40px 10px}
+.fabs{position:fixed;bottom:calc(14px + env(safe-area-inset-bottom));left:0;right:0;display:flex;justify-content:center;gap:10px;pointer-events:none;z-index:50}
+.fabs button{pointer-events:auto;padding:13px 20px;border:0;border-radius:14px;color:#fff;font-weight:800;font-size:15px;box-shadow:0 4px 12px rgba(0,0,0,.3)}
+.fabs .buy{background:#1d4ed8}.fabs .sale{background:#157347}
+.page{display:none;position:fixed;inset:0;z-index:100;background:var(--bg);overflow:auto;padding:8px;
+  padding-top:max(8px,env(safe-area-inset-top));padding-bottom:calc(30px + env(safe-area-inset-bottom))}
+.page.on{display:block}
+.page-in{max-width:560px;margin:0 auto}
+.phead{display:flex;align-items:center;gap:8px;margin:2px 0 10px}
+.phead h2{flex:1;text-align:center;color:var(--primary);font-size:16px}
+body.dark .phead h2{color:#9fc4ff}
+.pbtn{min-height:40px;padding:8px 12px;border:1.5px solid var(--border);border-radius:10px;background:var(--card);font-weight:800}
+.save{background:var(--green);border-color:var(--green);color:#fff}
+.info{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:10px;margin-bottom:10px;background:var(--card);border:1.5px solid var(--border);border-radius:12px}
+.fld{min-width:0}.fld.full{grid-column:1/-1}
+.fld label{display:block;margin-bottom:3px;font-size:11px;font-weight:800;color:var(--primary)}
+body.dark .fld label{color:#9fc4ff}
+.fld input,.fld select{width:100%;height:38px;padding:4px 8px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text)}
+.fld small{display:block;margin-top:3px;font-size:10.5px;color:var(--muted)}
+.ltr{direction:ltr;text-align:left}
+.photo{display:flex;align-items:center;gap:12px;padding:10px;margin-bottom:10px;background:var(--card);border:1.5px solid var(--border);border-radius:12px}
+.pprev{width:70px;height:70px;flex:0 0 70px;display:grid;place-items:center;overflow:hidden;background:var(--bg);border:1px dashed var(--border);border-radius:10px;color:var(--muted);font-size:11px;text-align:center}
+.pprev img{width:100%;height:100%;object-fit:cover}
+.pacts{display:flex;flex-wrap:wrap;gap:6px}
+.pacts button{padding:6px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);font-size:12px;font-weight:800}
+.twrap{overflow-x:auto;background:var(--card);border:1.5px solid var(--border);border-radius:12px}
+table.bt{width:100%;min-width:0;border-collapse:collapse;table-layout:fixed;font-size:11px}
+table.bt th{background:var(--primary);color:#fff;padding:6px 3px;font-weight:800}
+table.bt td{padding:4px 3px;text-align:center;border:1px solid var(--border)}
+table.bt input,table.bt select{width:100%;min-width:0;height:32px;padding:1px;border:1px solid var(--border);border-radius:5px;background:var(--bg);color:var(--text);font-size:11px;text-align:center}
+table.bt th:nth-child(1){width:11%}table.bt th:nth-child(2){width:25%}table.bt th:nth-child(3){width:15%}table.bt th:nth-child(4){width:13%}table.bt th:nth-child(5){width:17%}table.bt th:nth-child(6){width:19%}
+.rm{display:block;margin:3px auto 0;padding:1px 5px;border:1px solid #e0b4b4;border-radius:5px;background:#fff1f1;color:#a52222;font-size:10px}
+.addrow{display:block;margin:8px auto 0;padding:8px 14px;border:1px solid var(--border);border-radius:8px;background:var(--card);font-weight:800;font-size:12px}
+.foot{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px;padding:10px;background:var(--card);border:1.5px solid var(--border);border-radius:12px}
+.foot div{padding:7px;border:1px solid var(--border);border-radius:9px;text-align:center;background:var(--bg)}
+.foot label{display:block;margin-bottom:5px;font-size:11px;font-weight:800;color:var(--muted)}
+.foot strong{display:block;font-size:14px;color:var(--primary);overflow-wrap:anywhere}
+body.dark .foot strong{color:#9fc4ff}
+.foot input{width:100%;height:30px;text-align:center;direction:ltr;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--text)}
+.msg{min-height:20px;margin:8px 0;color:var(--red);font-size:12px}
+.mbg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:center;justify-content:center;padding:12px}
+.mbg.on{display:flex}
+.modal{background:var(--card);width:100%;max-width:420px;border-radius:16px;padding:14px;max-height:90vh;overflow:auto;border:2px solid var(--border);color:var(--text)}
+.modal h3{text-align:center;color:var(--primary);font-size:15px;margin-bottom:8px;padding-bottom:6px;border-bottom:1.5px solid var(--border)}
+body.dark .modal h3{color:#9fc4ff}
+.modal table{width:100%;border-collapse:collapse;font-size:12px;margin:6px 0}
+.modal th,.modal td{padding:5px;border:1px solid var(--border);text-align:right}
+.modal th{background:var(--bg)}
+.modal img{display:block;max-width:100%;max-height:35vh;margin:8px auto;border-radius:8px;border:1px solid var(--border)}
+.modal input{width:100%;height:38px;padding:4px 8px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);margin-top:4px}
+.mrow{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.mbtn.green{background:var(--green);color:#fff;border-color:var(--green)}
+.mbtn.red{background:#fff1f1;color:#a52222;border-color:#e0b4b4}
+.pick{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+.pick button{padding:9px 5px;border:1px solid var(--border);border-radius:10px;background:var(--bg);font-size:12px;font-weight:700}
+.toast{display:none;position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 16px;border-radius:10px;z-index:9999;font-size:12px;text-align:center;max-width:90%}
+.toast.show{display:block}.toast.error{background:var(--red)}.toast.success{background:var(--green)}
+.acc{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:9px 10px;margin-bottom:7px}
+.acc .nums{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;margin-top:4px}
+.acc .d{color:var(--red);font-weight:800}
+.acc small{color:var(--muted)}
+@media(min-width:480px){.info{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+/* ===== طراحی پررنگ‌تر: متن تیره‌تر، خط‌های واضح، سایه و گرادیان ===== */
+:root{--text:#050f21;--border:#7f98bd;--muted:#2b3f5e;--primary:#14315a}
+body.dark{--text:#f4f7ff;--border:#5a6a88;--muted:#c3cde0}
+html,body{background:linear-gradient(180deg,#e3ebf7 0%,#f1f4fa 55%,#e7ecf6 100%) fixed}
+body.dark,html:has(body.dark){background:#0f1218}
+body{color:var(--text);text-shadow:0 0 0 currentColor}
+.hdr{background:linear-gradient(135deg,#0f2a50,#1e4f8f);border:2px solid #0b1f3d;box-shadow:0 4px 0 #0b1f3d,0 8px 16px rgba(15,42,80,.3)}
+.hdr .t b{font-size:17px;letter-spacing:.2px;text-shadow:0 2px 3px rgba(0,0,0,.4)}
+.hdr button{border:1.5px solid rgba(255,255,255,.45)}
+.tabs button{border:2px solid var(--border);color:var(--text);box-shadow:0 2px 0 var(--border)}
+.tabs button.on{background:linear-gradient(180deg,#2a5ca8,#14315a);border-color:#0b1f3d;color:#fff;box-shadow:0 2px 0 #0b1f3d}
+.tools input,.tools select,.tools button{border:2px solid var(--border)!important;color:var(--text)}
+.tools input::placeholder{color:#4a5d7c}
+.sum div{border:2px solid var(--border);box-shadow:0 2px 0 var(--border);background:linear-gradient(180deg,#fff,#eef3fb)}
+body.dark .sum div{background:linear-gradient(180deg,#232833,#1b1f28)}
+.sum small{color:var(--muted)}
+.sum b{font-size:14px;color:#050f21}
+body.dark .sum b{color:#fff}
+.sum .g b{color:#0b6b3a}.sum .r b{color:#a31510}
+body.dark .sum .g b{color:#5be08f}body.dark .sum .r b{color:#ff8f86}
+.bill{border:2px solid var(--border);border-right:8px solid #1d4ed8;box-shadow:0 3px 0 var(--border),0 8px 14px rgba(20,49,90,.12);background:linear-gradient(180deg,#fff,#f4f7fd)}
+.bill.sale{border-right-color:#0f8a4b}
+body.dark .bill{background:linear-gradient(180deg,#232833,#1c2029)}
+.bill .nm{font-size:15px;color:#050f21}body.dark .bill .nm{color:#fff}
+.bill .tag{border:1.5px solid #1d4ed8;background:#dbe7ff;color:#0b2f8f}
+.bill.sale .tag{border-color:#0f8a4b;background:#d3f3e0;color:#07502b}
+.bill .meta{color:var(--muted)}
+.bill .nums b{color:#050f21}body.dark .bill .nums b{color:#fff}
+.bill .nums .d{color:#a31510}body.dark .bill .nums .d{color:#ff8f86}
+.bill .acts button,.mbtn,.pacts button,.addrow{border:2px solid var(--border);box-shadow:0 2px 0 var(--border);color:var(--text);background:var(--card)}
+.bill .acts button:active,.mbtn:active,.pbtn:active{transform:translateY(2px);box-shadow:none}
+.fabs .buy{background:linear-gradient(180deg,#3b73d6,#14388f);border:2px solid #0b2263;box-shadow:0 4px 0 #0b2263,0 8px 14px rgba(0,0,0,.3)}
+.fabs .sale{background:linear-gradient(180deg,#25b06a,#0b6b3a);border:2px solid #064a27;box-shadow:0 4px 0 #064a27,0 8px 14px rgba(0,0,0,.3)}
+.pbtn{border:2px solid var(--border);box-shadow:0 2px 0 var(--border);color:var(--text)}
+.pbtn.save{background:linear-gradient(180deg,#25b06a,#0b6b3a);border-color:#064a27;box-shadow:0 2px 0 #064a27;color:#fff}
+.phead h2{color:#0f2a50;font-size:18px;text-shadow:0 1px 0 #fff}
+body.dark .phead h2{color:#bcd4ff;text-shadow:none}
+.info,.photo,.foot,.twrap{border:2px solid var(--border);box-shadow:0 3px 0 var(--border);background:linear-gradient(180deg,#fff,#f3f6fc)}
+body.dark .info,body.dark .photo,body.dark .foot,body.dark .twrap{background:linear-gradient(180deg,#232833,#1c2029)}
+.fld label{color:#0f2a50;font-size:12px}body.dark .fld label{color:#bcd4ff}
+.fld input,.fld select,.modal input,.foot input,table.bt input,table.bt select{border:2px solid #6f8ab3!important;color:var(--text);background:#fff}
+body.dark .fld input,body.dark .fld select,body.dark .modal input,body.dark .foot input,body.dark table.bt input,body.dark table.bt select{background:#262b36;border-color:#5a6a88!important}
+.fld input:focus,.fld select:focus,.foot input:focus,table.bt input:focus,table.bt select:focus,.modal input:focus,.tools input:focus{outline:3px solid rgba(37,99,235,.45);border-color:#1d4ed8!important}
+table.bt th{background:linear-gradient(180deg,#2a5ca8,#14315a);border:1.5px solid #0b1f3d;font-size:12px;text-shadow:0 1px 2px rgba(0,0,0,.4)}
+table.bt td{border:1.5px solid #7f98bd}
+table.bt tbody tr:nth-child(even) td{background:rgba(42,92,168,.07)}
+.rn,.sm{font-size:12px;color:#050f21}body.dark .rn,body.dark .sm{color:#fff}
+.foot div{border:2px solid var(--border);background:#fff}
+body.dark .foot div{background:#262b36}
+.foot label{color:var(--muted)}
+.foot strong{font-size:16px;color:#0f2a50}body.dark .foot strong{color:#bcd4ff}
+.modal{border:3px solid #14315a;box-shadow:0 12px 40px rgba(0,0,0,.45)}
+.modal h3{color:#0f2a50;font-size:16px;border-bottom:2.5px solid #14315a}
+body.dark .modal h3{color:#bcd4ff;border-bottom-color:#5a6a88}
+.modal th,.modal td{border:1.5px solid #7f98bd;color:var(--text)}
+.modal th{background:#dbe5f5;color:#0f2a50}body.dark .modal th{background:#2a3347;color:#bcd4ff}
+.pick button{border:2px solid var(--border);color:var(--text);box-shadow:0 2px 0 var(--border);background:#f4f8ff}
+body.dark .pick button{background:#262b36}
+.acc{border:2px solid var(--border);border-right:8px solid #c28a0e;box-shadow:0 3px 0 var(--border);background:linear-gradient(180deg,#fff,#f7f4ea)}
+body.dark .acc{background:linear-gradient(180deg,#2a2820,#1f1e18)}
+.acc b{color:#050f21}body.dark .acc b{color:#fff}
+.acc .d{color:#a31510}body.dark .acc .d{color:#ff8f86}
+.msg{font-weight:900}
+.empty{color:#2b3f5e}body.dark .empty{color:#c3cde0}
+
+.foot{position:sticky;bottom:calc(-6px - env(safe-area-inset-bottom));z-index:20;margin-top:12px;border:3px solid #14315a!important;background:linear-gradient(180deg,#fff,#e8eef9)!important;box-shadow:0 -6px 16px rgba(20,49,90,.25),0 3px 0 #14315a!important;padding:8px!important;gap:6px!important}
+body.dark .foot{background:linear-gradient(180deg,#232833,#171a22)!important;border-color:#5a6a88!important}
+.foot .paidbox{border:3px solid #e08a00!important;background:#fff3d6!important;box-shadow:0 0 0 3px rgba(224,138,0,.25)}
+body.dark .foot .paidbox{background:#3a2c10!important}
+.foot .paidbox label{color:#7a4500!important;font-size:12px}
+body.dark .foot .paidbox label{color:#ffd28a!important}
+.foot .paidbox input{height:38px;font-size:18px;border:2px solid #e08a00!important;background:#fff!important;color:#050f21!important}
+.payall{grid-column:1/-1;padding:9px;border:2px solid #064a27;border-radius:10px;background:linear-gradient(180deg,#25b06a,#0b6b3a);color:#fff;font-weight:900;font-size:14px;box-shadow:0 2px 0 #064a27}
+.payall:active{transform:translateY(2px);box-shadow:none}
+#formPage{padding-bottom:calc(60px + env(safe-area-inset-bottom))}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <svg class="logo" viewBox="0 0 120 70" aria-hidden="true"><path d="M12 17l20 18 18-27 10 27 18-27 20 27 10-18 7 39H5z" fill="#e5b84b" stroke="#fff4d6" stroke-width="4" stroke-linejoin="round"/><path d="M12 56h96" stroke="#fff4d6" stroke-width="6" stroke-linecap="round"/></svg>
+  <div class="t"><b>دفتر بل سلطان</b><small>حساب بل‌های خرید و فروش</small></div>
+  <button type="button" id="btnMenu" aria-label="منو">⋮</button>
+  <button type="button" id="btnDark" aria-label="حالت شب">🌙</button>
+</div>
+
+<div class="tabs" id="kindTabs">
+  <button type="button" data-k="all" class="on">همه</button>
+  <button type="button" data-k="purchase">خرید</button>
+  <button type="button" data-k="sale">فروش</button>
+  <button type="button" data-k="acc">حساب‌ها</button>
+</div>
+
+<div class="tools">
+  <input id="q" type="search" placeholder="جستجو: نام، شماره بل، جنس، تاریخ…">
+  <select id="cur" aria-label="ارز" style="height:40px;border:1.5px solid var(--border);border-radius:10px;background:var(--card);padding:0 6px"><option value="all">همه ارزها</option><option value="AFN">AFN</option><option value="USD">USD</option></select>
+</div>
+
+<div class="sum" id="sum"></div>
+<div id="list"></div>
+
+<div class="fabs">
+  <button type="button" class="buy" onclick="openForm('purchase')">＋ بل خرید</button>
+  <button type="button" class="sale" onclick="openForm('sale')">＋ بل فروش</button>
+</div>
+
+<!-- فرم ثبت/ویرایش بل -->
+<div id="formPage" class="page"><div class="page-in">
+  <div class="phead">
+    <button type="button" class="pbtn" onclick="closeForm()">‹ برگشت</button>
+    <h2 id="fTitle">🧾 بل خرید</h2>
+    <button type="button" class="pbtn save" id="fSave">ثبت</button>
+  </div>
+  <datalist id="nameList"></datalist>
+  <div class="info">
+    <div class="fld full"><label id="lName" for="fName">نام *</label><input id="fName" list="nameList" maxlength="100" autocomplete="off" placeholder="نام"><small id="fNameHint"></small></div>
+    <div class="fld"><label for="fCur">ارز بل</label><select id="fCur"><option value="AFN">AFN</option><option value="USD">USD</option></select></div>
+    <div class="fld"><label for="fPhone">شماره تماس</label><input id="fPhone" type="tel" inputmode="tel" class="ltr" maxlength="40" placeholder="شماره تماس"></div>
+    <div class="fld"><label for="fAddr">آدرس</label><input id="fAddr" maxlength="160" placeholder="آدرس"></div>
+    <div class="fld"><label for="fKhata">نمبر کهاته</label><input id="fKhata" inputmode="numeric" class="ltr" maxlength="30" placeholder="نمبر کهاته"></div>
+    <div class="fld"><label for="fDate">تاریخ</label><input id="fDate" class="ltr" inputmode="numeric" maxlength="12"></div>
+    <div class="fld"><label for="fPage">شماره بل</label><input id="fPage" class="ltr" inputmode="numeric" maxlength="30"></div>
+  </div>
+  <div class="photo">
+    <div id="pPrev" class="pprev">عکس بل<br>اختیاری</div>
+    <div><b style="display:block;margin-bottom:6px">عکس بل (اختیاری)</b>
+      <div class="pacts">
+        <button type="button" id="pCam">📷 عکس‌گرفتن</button>
+        <button type="button" id="pGal">🖼 انتخاب عکس</button>
+        <button type="button" id="pDel" hidden>حذف عکس</button>
+      </div>
+      <input id="pFileCam" type="file" accept="image/*" capture="environment" hidden>
+      <input id="pFileGal" type="file" accept="image/*" hidden>
+    </div>
+  </div>
+  <div class="twrap"><table class="bt"><thead><tr><th>شماره</th><th>اسم جنس</th><th>واحد</th><th>تعداد</th><th>قیمت (<span class="cl">AFN</span>)</th><th>جمع</th></tr></thead><tbody id="rowsBody"></tbody></table></div>
+  <button type="button" class="addrow" id="addRow">＋ افزودن ردیف</button>
+  <div class="foot">
+    <div><label>مجموع کل (<span class="cl">AFN</span>)</label><strong id="tGrand">0</strong></div>
+    <div class="paidbox"><label>💰 رسید پول (<span class="cl">AFN</span>)</label><input id="fPaid" inputmode="decimal" value="0"></div>
+    <div><label>باقی‌مانده (<span class="cl">AFN</span>)</label><strong id="tDue">0</strong></div>
+    <button type="button" class="payall" id="payAll">✔ کامل پرداخت شد</button>
+  </div>
+  <div class="fld" style="margin-top:10px"><label for="fNote">یادداشت (اختیاری)</label><input id="fNote" maxlength="120" placeholder="یادداشت"></div>
+  <p class="msg" id="fMsg" role="status"></p>
+</div></div>
+
+<div id="mbg" class="mbg"><div id="modal" class="modal"></div></div>
+<input type="file" id="importFile" accept=".json" hidden>
+<div id="toast" class="toast"></div>
+
+<script>
+/* ===================== تنظیمات دوکان ===================== */
+var SHOP_NAME='دوکان سیدراشد و نور محمد شاه';
+var SHOP_ADDR='باغ قاضی مارکت چقرک، دوکان نمبر 104';
+var PHONES=['۰۷۷۳۷۸۹۳۷۲','۰۷۴۸۴۹۴۱۰۷'];
+var STORE_KEY='sultan_bill_app_v1';
+var ITEM_CHOICES=['برنج پاکستانی کهنه','برنج سیله نو','برنج هندی','برنج بریانی','برنج میدگی','سیله چوچه','برنج پرمل','برنج بغلانی','برنج دوشی','لوبیا پلنگی','لوبیا بادامی','لوبیا بقه یی','لوبیا کپسولی نجرابی','لوبیا شیرچایی','لوبیا مقری','لوبیا چیتی','لوبیا کپسولی اول','لوبیا کپسولی دوم','نخود کلان','نخود متوسط','نخود میده','دال نخود','دال متر','طوطی دال','دال سفید','دال مشنگ','بوره','سویا','نسک کلان','نسک میده'];
+var UNITS=['بوجی','سیر','کیلو','من','تن','عدد'];
+
+/* ===================== ابزارها ===================== */
+function $(id){return document.getElementById(id);}
+function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function normalizeDigits(v){
+  return String(v==null?'':v).replace(/[۰-۹٠-٩]/g,function(d){
+    var i='۰۱۲۳۴۵۶۷۸۹'.indexOf(d);return String(i===-1?'٠١٢٣٤٥٦٧٨٩'.indexOf(d):i);});
+}
+function num(n){
+  var v=Number(normalizeDigits(n))||0;
+  var p=v.toFixed(2).replace(/\.?0+$/,'').split('.');
+  p[0]=p[0].replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  return p.join('.');
+}
+function nameKey(v){return normalizeDigits(v).trim().replace(/[\u200c\u200d]/g,'').replace(/\s+/g,' ').replace(/ك/g,'ک').replace(/[يى]/g,'ی').toLowerCase();}
+function amountOf(v){
+  var s=normalizeDigits(v).replace(/,/g,'').trim();
+  if(!/^\d+(?:\.\d{1,2})?$/.test(s))return NaN;
+  var n=Number(s);return isFinite(n)&&n>0?n:NaN;
+}
+function cleanAmount(el){
+  var v=normalizeDigits(el.value).replace(/,/g,'').replace(/[^\d.]/g,'');
+  var d=v.indexOf('.');
+  if(d!==-1)v=v.slice(0,d+1)+v.slice(d+1).replace(/\./g,'').slice(0,2);
+  v=v.replace(/^0+(?=\d)/,'');
+  el.value=v;
+}
+function today(){
+  try{
+    var p=new Intl.DateTimeFormat('fa-IR-u-ca-persian',{year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()),y='',m='',d='';
+    p.forEach(function(x){if(x.type==='year')y=x.value;if(x.type==='month')m=x.value;if(x.type==='day')d=x.value;});
+    return normalizeDigits(y)+'/'+normalizeDigits(m).padStart(2,'0')+'/'+normalizeDigits(d).padStart(2,'0');
+  }catch(e){var n=new Date();return n.getFullYear()+'/'+String(n.getMonth()+1).padStart(2,'0')+'/'+String(n.getDate()).padStart(2,'0');}
+}
+function normDate(v){
+  var s=normalizeDigits(v||'').trim().replace(/-/g,'/').replace(/\./g,'/');
+  var p=s.split('/').filter(function(x){return x!=='';});
+  if(p.length!==3)return s;
+  var y=p[0],m=p[1],d=p[2];
+  if(y.length<4&&d.length===4){var t=y;y=d;d=t;}
+  return y+'/'+m.padStart(2,'0')+'/'+d.padStart(2,'0');
+}
+function validDate(v){var m=String(v||'').match(/^(\d{4})\/(\d{2})\/(\d{2})$/);return !!m&&+m[2]>=1&&+m[2]<=12&&+m[3]>=1&&+m[3]<=31;}
+function toast(x,t){var el=$('toast');el.textContent=x;el.className='toast show'+(t?' '+t:'');clearTimeout(el._t);el._t=setTimeout(function(){el.className='toast';},3200);}
+function modal(html){$('modal').innerHTML=html;$('mbg').classList.add('on');}
+function closeModal(){$('mbg').classList.remove('on');}
+$('mbg').addEventListener('click',function(e){if(e.target===this)closeModal();});
+document.addEventListener('input',function(e){
+  var el=e.target;
+  if(el&&el.tagName==='INPUT'&&/numeric|decimal|tel/.test(el.getAttribute('inputmode')||'')){
+    var n=normalizeDigits(el.value);if(n!==el.value)el.value=n;
+  }
+},true);
+
+/* ===================== ذخیره‌سازی ===================== */
+var bills=[];
+function load(){
+  try{var raw=localStorage.getItem(STORE_KEY);if(raw){var o=JSON.parse(raw);bills=Array.isArray(o.bills)?o.bills:[];}}catch(e){bills=[];}
+}
+function save(){
+  try{localStorage.setItem(STORE_KEY,JSON.stringify({version:1,bills:bills}));return true;}
+  catch(e){console.error(e);return false;}
+}
+function findBill(id){for(var i=0;i<bills.length;i++)if(bills[i].id===id)return bills[i];return null;}
+function nextBillNo(kind){
+  var mx=0;
+  bills.forEach(function(b){if(b.kind!==kind)return;var v=normalizeDigits(String(b.page||'')).trim();if(/^\d+$/.test(v))mx=Math.max(mx,parseInt(v,10));});
+  return String(mx+1);
+}
+function lastInfoFor(name,kind){
+  var k=nameKey(name);if(!k)return null;
+  for(var i=bills.length-1;i>=0;i--){if(bills[i].kind===kind&&nameKey(bills[i].name)===k)return bills[i];}
+  return null;
+}
+
+/* ===================== لیست و خلاصه ===================== */
+var kindFilter='all';
+function curOf(b){return b.currency==='USD'?'USD':'AFN';}
+function filtered(){
+  var q=nameKey($('q').value),c=$('cur').value;
+  return bills.filter(function(b){
+    if(kindFilter==='purchase'&&b.kind!=='purchase')return false;
+    if(kindFilter==='sale'&&b.kind!=='sale')return false;
+    if(c!=='all'&&curOf(b)!==c)return false;
+    if(!q)return true;
+    var hay=nameKey([b.name,b.page,b.date,b.phone,b.khata,b.note,(b.items||[]).map(function(i){return i.name;}).join(' ')].join(' '));
+    return hay.indexOf(q)!==-1;
+  }).sort(function(a,b){return (b.createdAt||0)-(a.createdAt||0);});
+}
+function totalsOf(list){
+  var t={AFN:{total:0,paid:0,due:0},USD:{total:0,paid:0,due:0}};
+  list.forEach(function(b){var c=curOf(b);t[c].total+=+b.total||0;t[c].paid+=+b.paid||0;t[c].due+=+b.due||0;});
+  return t;
+}
+function renderSummary(list){
+  var t=totalsOf(list),parts=['AFN','USD'].filter(function(c){return t[c].total>0;});
+  if(!parts.length)parts=['AFN'];
+  var cur=parts[0],x=t[cur],extra=parts.length>1?' <small>(+USD)</small>':'';
+  $('sum').innerHTML='<div><small>تعداد بل</small><b>'+list.length+'</b></div>'+
+    '<div class="g"><small>مجموع ('+cur+')</small><b>'+num(x.total)+extra+'</b></div>'+
+    '<div class="r"><small>باقی ('+cur+')</small><b>'+num(x.due)+'</b></div>';
+}
+function render(){
+  document.querySelectorAll('#kindTabs button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-k')===kindFilter);});
+  if(kindFilter==='acc'){renderAccounts();return;}
+  var list=filtered();
+  renderSummary(list);
+  if(!list.length){$('list').innerHTML='<div class="empty">هنوز بلی ثبت نشده است.<br>با دکمه‌های پایین بل جدید بسازید.</div>';return;}
+  $('list').innerHTML=list.map(function(b){
+    var c=curOf(b),sale=b.kind==='sale';
+    return '<div class="bill'+(sale?' sale':'')+'"><div class="top"><span class="nm">'+esc(b.name)+'</span><span class="tag">'+(sale?'فروش':'خرید')+' • بل '+esc(b.page||'-')+'</span></div>'+
+      '<div class="meta">'+esc(b.date)+(b.phone?' • '+esc(b.phone):'')+' • '+(b.items||[]).length+' قلم</div>'+
+      '<div class="nums"><span>مجموع: <b>'+num(b.total)+' '+c+'</b></span><span>پرداخت: <b>'+num(b.paid)+'</b></span><span class="d">باقی: '+num(b.due)+'</span></div>'+
+      '<div class="acts"><button type="button" onclick="viewBill(\''+esc(b.id)+'\')">دیدن</button>'+
+      '<button type="button" onclick="editBill(\''+esc(b.id)+'\')">ویرایش</button>'+
+      '<button type="button" onclick="shareBill(\''+esc(b.id)+'\')">واتساپ</button>'+
+      '<button type="button" onclick="printBill(\''+esc(b.id)+'\')">چاپ</button></div></div>';
+  }).join('');
+}
+function renderAccounts(){
+  var map={};
+  filtered2().forEach(function(b){
+    var key=b.kind+'|'+nameKey(b.name);
+    if(!map[key])map[key]={name:b.name,kind:b.kind,phone:b.phone,count:0,t:{AFN:{total:0,paid:0,due:0},USD:{total:0,paid:0,due:0}}};
+    var a=map[key],c=curOf(b);a.count++;a.t[c].total+=+b.total||0;a.t[c].paid+=+b.paid||0;a.t[c].due+=+b.due||0;a.phone=a.phone||b.phone;
+  });
+  var arr=Object.keys(map).map(function(k){return map[k];}).sort(function(a,b){return (b.t.AFN.due+b.t.USD.due)-(a.t.AFN.due+a.t.USD.due);});
+  var all=filtered2();renderSummary(all);
+  if(!arr.length){$('list').innerHTML='<div class="empty">حسابی وجود ندارد.</div>';return;}
+  $('list').innerHTML=arr.map(function(a){
+    var rows=['AFN','USD'].filter(function(c){return a.t[c].total>0;}).map(function(c){
+      var x=a.t[c];return '<div class="nums"><span>'+c+' — مجموع: <b>'+num(x.total)+'</b></span><span>پرداخت: <b>'+num(x.paid)+'</b></span><span class="d">باقی: '+num(x.due)+'</span></div>';
+    }).join('');
+    return '<div class="acc"><div class="top" style="display:flex;justify-content:space-between;gap:8px"><b>'+esc(a.name)+'</b><small>'+(a.kind==='sale'?'مشتری':'تأمین‌کننده')+' • '+a.count+' بل</small></div>'+rows+'</div>';
+  }).join('');
+}
+function filtered2(){
+  var q=nameKey($('q').value),c=$('cur').value;
+  return bills.filter(function(b){
+    if(c!=='all'&&curOf(b)!==c)return false;
+    if(!q)return true;
+    return nameKey([b.name,b.phone].join(' ')).indexOf(q)!==-1;
+  });
+}
+$('kindTabs').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;kindFilter=b.getAttribute('data-k');render();});
+$('q').addEventListener('input',render);
+$('cur').addEventListener('change',render);
+
+/* ===================== فرم بل ===================== */
+var formKind='purchase',editId=null,pendingPhoto='';
+function rowHtml(i,r){
+  r=r||{};
+  var opts=UNITS.slice();if(r.unit&&opts.indexOf(r.unit)===-1)opts.push(r.unit);
+  return '<tr class="brow"><td><span class="rn">'+(i+1)+'</span><button type="button" class="rm" onclick="removeRow(this)">حذف</button></td>'+
+    '<td><input data-f="name" type="text" value="'+esc(r.name||'')+'" placeholder="نام جنس" readonly onclick="pickItem(this)"></td>'+
+    '<td><select data-f="unit">'+opts.map(function(u){return '<option value="'+esc(u)+'"'+(u===(r.unit||'بوجی')?' selected':'')+'>'+esc(u)+'</option>';}).join('')+'</select></td>'+
+    '<td><input data-f="quantity" inputmode="decimal" placeholder="0" value="'+(r.quantity!=null?r.quantity:'')+'" oninput="cleanAmount(this);calc()"></td>'+
+    '<td><input data-f="price" inputmode="decimal" placeholder="0" value="'+(r.price!=null?r.price:'')+'" oninput="cleanAmount(this);calc()"></td>'+
+    '<td><span class="sm">0</span></td></tr>';
+}
+function renumber(){
+  var rows=$('rowsBody').querySelectorAll('.brow');
+  rows.forEach(function(r,i){r.querySelector('.rn').textContent=i+1;r.querySelector('.rm').style.display=i>=3?'block':'none';});
+  $('addRow').textContent='＋ افزودن ردیف '+(rows.length+1);
+}
+function addRow(r,focus){
+  $('rowsBody').insertAdjacentHTML('beforeend',rowHtml($('rowsBody').children.length,r));
+  renumber();calc();
+  if(focus){var rows=$('rowsBody').querySelectorAll('.brow');pickItem(rows[rows.length-1].querySelector('[data-f="name"]'));}
+}
+function removeRow(btn){var tr=btn.closest('tr');tr.parentNode.removeChild(tr);renumber();calc();}
+function calc(){
+  var cur=$('fCur').value==='USD'?'USD':'AFN',grand=0;
+  document.querySelectorAll('.cl').forEach(function(s){s.textContent=cur;});
+  $('rowsBody').querySelectorAll('.brow').forEach(function(r){
+    var q=amountOf(r.querySelector('[data-f="quantity"]').value),p=amountOf(r.querySelector('[data-f="price"]').value);
+    var t=isFinite(q)&&isFinite(p)?q*p:0;grand+=t;r.querySelector('.sm').textContent=num(t);
+  });
+  var pv=normalizeDigits($('fPaid').value).replace(/,/g,'').trim(),paid=pv===''?0:Number(pv);
+  $('tGrand').textContent=num(grand);
+  $('tDue').textContent=num(Math.max(0,grand-(isFinite(paid)?paid:0)));
+  return {grand:grand,paid:paid};
+}
+function setPhoto(d){
+  pendingPhoto=d||'';
+  $('pPrev').innerHTML=pendingPhoto?'<img src="'+pendingPhoto+'" alt="عکس بل">':'عکس بل<br>اختیاری';
+  $('pDel').hidden=!pendingPhoto;
+}
+function onPhoto(ev){
+  var f=ev.target.files&&ev.target.files[0];ev.target.value='';
+  if(!f)return;
+  if(!/^image\//i.test(f.type)){toast('لطفاً یک فایل عکس انتخاب کنید','error');return;}
+  var rd=new FileReader();
+  rd.onerror=function(){toast('خواندن عکس ناموفق بود','error');};
+  rd.onload=function(){
+    var img=new Image();
+    img.onerror=function(){toast('فایل عکس قابل خواندن نیست','error');};
+    img.onload=function(){
+      var ms=1100,ql=0.65,out='';
+      for(var a=0;a<6;a++){
+        var sc=Math.min(1,ms/Math.max(img.naturalWidth,img.naturalHeight));
+        var cv=document.createElement('canvas');
+        cv.width=Math.max(1,Math.round(img.naturalWidth*sc));cv.height=Math.max(1,Math.round(img.naturalHeight*sc));
+        var cx=cv.getContext('2d');cx.fillStyle='#fff';cx.fillRect(0,0,cv.width,cv.height);cx.drawImage(img,0,0,cv.width,cv.height);
+        out=cv.toDataURL('image/jpeg',ql);
+        if(out.length<160000)break;
+        ms=Math.round(ms*0.85);ql=Math.max(0.45,ql-0.05);
+      }
+      setPhoto(out);
+    };
+    img.src=rd.result;
+  };
+  rd.readAsDataURL(f);
+}
+function openForm(kind,bill){
+  formKind=kind;editId=bill?bill.id:null;
+  var buy=kind==='purchase';
+  $('fTitle').textContent='🧾 '+(bill?'ویرایش ':'')+'بل '+(buy?'خرید':'فروش');
+  $('fSave').textContent=bill?'ذخیره':'ثبت';
+  $('lName').textContent=(buy?'نام تأمین‌کننده':'نام مشتری')+' *';
+  $('fName').placeholder=buy?'نام تأمین‌کننده':'نام مشتری';
+  $('nameList').innerHTML=uniqueNames(kind).map(function(n){return '<option value="'+esc(n)+'"></option>';}).join('');
+  $('fName').value=bill?bill.name:'';
+  $('fCur').value=bill?curOf(bill):'AFN';
+  $('fPhone').value=bill?bill.phone||'':'';
+  $('fAddr').value=bill?bill.address||'':'';
+  $('fKhata').value=bill?bill.khata||'':'';
+  $('fDate').value=bill?bill.date:today();
+  $('fPage').value=bill?bill.page:nextBillNo(kind);
+  $('fPaid').value=bill?bill.paid:'0';
+  $('fNote').value=bill?bill.note||'':'';
+  $('fNameHint').textContent='';
+  $('fMsg').textContent='';
+  $('rowsBody').innerHTML='';
+  var items=bill&&bill.items&&bill.items.length?bill.items:[{},{},{}];
+  items.forEach(function(r){addRow(r,false);});
+  setPhoto(bill?bill.photo:'');
+  calc();
+  $('formPage').classList.add('on');
+  $('formPage').scrollTop=0;
+  if(!bill)setTimeout(function(){$('fName').focus();},50);
+}
+function closeForm(){$('formPage').classList.remove('on');editId=null;setPhoto('');}
+function uniqueNames(kind){
+  var seen={},out=[];
+  bills.forEach(function(b){if(b.kind!==kind)return;var k=nameKey(b.name);if(!seen[k]){seen[k]=1;out.push(b.name);}});
+  return out;
+}
+function fillFromName(){
+  var b=lastInfoFor($('fName').value,formKind);
+  if(b&&!editId){
+    $('fPhone').value=b.phone||'';$('fAddr').value=b.address||'';$('fKhata').value=b.khata||'';
+    $('fNameHint').textContent='✔ اطلاعات قبلی این '+(formKind==='purchase'?'تأمین‌کننده':'مشتری')+' بارگذاری شد.';
+  }else if(!editId){
+    $('fNameHint').textContent=$('fName').value.trim()?'نام جدید؛ همراه همین بل ثبت می‌شود.':'';
+  }
+}
+$('fName').addEventListener('change',fillFromName);
+$('fName').addEventListener('input',function(){if(uniqueNames(formKind).some(function(n){return nameKey(n)===nameKey($('fName').value);}))fillFromName();});
+$('fCur').addEventListener('change',calc);
+$('payAll').onclick=function(){var t=calc();$('fPaid').value=String(t.grand);calc();};
+$('fPaid').addEventListener('input',function(){cleanAmount(this);calc();});
+$('fPaid').addEventListener('focus',function(){var el=this;if(el.value==='0'){el.value='';calc();}});
+$('fPaid').addEventListener('blur',function(){if(this.value==='')this.value='0';calc();});
+$('fDate').addEventListener('input',function(){this.value=normalizeDigits(this.value).replace(/[^\d\/.-]/g,'').replace(/-/g,'/');});
+$('addRow').onclick=function(){addRow({},true);};
+$('pCam').onclick=function(){$('pFileCam').click();};
+$('pGal').onclick=function(){$('pFileGal').click();};
+$('pDel').onclick=function(){setPhoto('');};
+$('pFileCam').onchange=onPhoto;$('pFileGal').onchange=onPhoto;
+
+/* انتخاب جنس */
+var pickTarget=null;
+function pickItem(input){
+  pickTarget=input;
+  modal('<h3>انتخاب جنس</h3><div class="pick">'+ITEM_CHOICES.map(function(n,i){return '<button type="button" data-i="'+i+'">'+esc(n)+'</button>';}).join('')+'</div>'+
+    '<div class="mrow"><input id="pickCustom" placeholder="نام دیگر بنویسید" autocomplete="off" style="flex:2;margin:0"><button type="button" class="mbtn green" id="pickOk">تأیید</button></div>'+
+    '<div class="mrow"><button type="button" class="mbtn" onclick="closeModal()">بستن</button></div>');
+  $('modal').querySelectorAll('.pick button').forEach(function(b){b.onclick=function(){chooseItem(ITEM_CHOICES[+b.getAttribute('data-i')]);};});
+  function ok(){var v=$('pickCustom').value.trim();if(v)chooseItem(v);}
+  $('pickOk').onclick=ok;
+  $('pickCustom').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();ok();}});
+}
+function chooseItem(name){
+  closeModal();
+  if(!pickTarget)return;
+  pickTarget.value=name;
+  var row=pickTarget.closest('tr'),qty=row.querySelector('[data-f="quantity"]');
+  /* اگر همین جنس قبلاً در بل‌ها بوده، واحد قبلی را پیشنهاد کن */
+  var u=lastUnitFor(name);
+  if(u){var sel=row.querySelector('[data-f="unit"]');if(![].some.call(sel.options,function(o){return o.value===u;})){var op=document.createElement('option');op.value=op.textContent=u;sel.appendChild(op);}sel.value=u;}
+  setTimeout(function(){qty.focus();},50);
+}
+function lastUnitFor(name){
+  var k=nameKey(name);
+  for(var i=bills.length-1;i>=0;i--){for(var j=0;j<(bills[i].items||[]).length;j++){if(nameKey(bills[i].items[j].name)===k)return bills[i].items[j].unit;}}
+  return null;
+}
+
+$('fSave').onclick=function(){saveForm();};
+function saveForm(skipPaid){
+  var msg=$('fMsg');msg.textContent='';
+  var buy=formKind==='purchase',name=$('fName').value.trim();
+  if(!name){msg.textContent='نام '+(buy?'تأمین‌کننده':'مشتری')+' را وارد کنید.';$('fName').focus();return;}
+  var t=calc(),cur=$('fCur').value==='USD'?'USD':'AFN';
+  var date=normDate($('fDate').value.trim()||today());
+  if(!validDate(date)){msg.textContent='تاریخ معتبر وارد کنید (مثل 1405/07/25).';$('fDate').focus();return;}
+  if(!isFinite(t.paid)||t.paid<0||t.paid>t.grand){msg.textContent='مبلغ پرداخت‌شده باید بین صفر و مجموع کل باشد.';$('fPaid').focus();return;}
+  if(skipPaid!==true&&!editId&&t.paid===0){
+    modal('<h3>💰 رسید پول فراموش نشود</h3><p style="text-align:center;margin:10px 0;font-size:14px">رسید پول این بل <b>صفر</b> است.<br>مجموع بل: <b>'+num(t.grand)+' '+cur+'</b><br>مشتری چیزی نپرداخته؟</p>'+
+      '<div class="mrow"><button type="button" class="mbtn green" id="zPay">✎ وارد کردن رسید پول</button></div>'+
+      '<div class="mrow"><button type="button" class="mbtn" id="zFull">✔ کامل پرداخت شد</button><button type="button" class="mbtn red" id="zSkip">ثبت بدون رسید</button></div>');
+    $('zPay').onclick=function(){closeModal();var f=$('fPaid');f.focus();f.select();};
+    $('zFull').onclick=function(){closeModal();$('fPaid').value=String(t.grand);calc();saveForm(true);};
+    $('zSkip').onclick=function(){closeModal();saveForm(true);};
+    return;
+  }
+  var rows=[],trs=$('rowsBody').querySelectorAll('.brow');
+  for(var i=0;i<trs.length;i++){
+    var n=trs[i].querySelector('[data-f="name"]').value.trim(),u=trs[i].querySelector('[data-f="unit"]').value.trim();
+    var qv=normalizeDigits(trs[i].querySelector('[data-f="quantity"]').value).replace(/,/g,'').trim();
+    var pv=normalizeDigits(trs[i].querySelector('[data-f="price"]').value).replace(/,/g,'').trim();
+    if(!n&&!qv&&!pv)continue;
+    var q=qv===''?NaN:Number(qv),p=pv===''?NaN:Number(pv);
+    if(!n||!u||!isFinite(q)||q<=0||!isFinite(p)||p<=0){msg.textContent='در ردیف '+(i+1)+' نام جنس، واحد، تعداد و قیمت معتبر را تکمیل کنید.';return;}
+    rows.push({name:n,unit:u,quantity:q,price:p,total:q*p});
+  }
+  if(!rows.length||t.grand<=0){msg.textContent='حداقل یک جنس با تعداد و قیمت وارد کنید.';return;}
+  var page=normalizeDigits(String($('fPage').value||'').trim())||nextBillNo(formKind);
+  var snapshot=JSON.stringify(bills);
+  var rec={
+    id:editId||((buy?'purchase-':'sale-')+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8)),
+    kind:formKind,name:name,phone:$('fPhone').value.trim(),address:$('fAddr').value.trim(),khata:$('fKhata').value.trim(),
+    date:date,page:page,currency:cur,total:t.grand,paid:t.paid,due:t.grand-t.paid,
+    note:$('fNote').value.trim(),photo:pendingPhoto,items:rows,createdAt:Date.now()
+  };
+  if(editId){
+    var old=findBill(editId);rec.createdAt=old?old.createdAt:rec.createdAt;
+    bills=bills.map(function(b){return b.id===editId?rec:b;});
+  }else bills.push(rec);
+  if(!save()){
+    bills=JSON.parse(snapshot);
+    msg.textContent='بل ذخیره نشد. فضای مرورگر کافی نیست؛ عکس را کوچک‌تر کنید یا از اطلاعات بکاپ بگیرید.';return;
+  }
+  var wasEdit=!!editId;
+  closeForm();render();
+  toast('✅ بل '+(buy?'خرید':'فروش')+(wasEdit?' ویرایش شد':' ثبت شد')+' — مجموع: '+num(t.grand)+' '+cur,'success');
+}
+
+/* ===================== نمایش / حذف / ویرایش ===================== */
+function viewBill(id){
+  var b=findBill(id);if(!b){toast('بل پیدا نشد','error');return;}
+  var c=curOf(b),buy=b.kind==='purchase';
+  var rows=(b.items||[]).map(function(i){return '<tr><td>'+esc(i.name)+'</td><td>'+esc(i.unit)+'</td><td>'+num(i.quantity)+'</td><td>'+num(i.price)+'</td><td>'+num(i.total)+'</td></tr>';}).join('');
+  modal('<h3>🧾 بل '+(buy?'خرید از ':'فروش به ')+esc(b.name)+'</h3>'+
+    '<p>تاریخ: '+esc(b.date)+' | شماره بل: '+esc(b.page||'-')+'</p>'+
+    (b.phone?'<p>تماس: <span dir="ltr">'+esc(b.phone)+'</span></p>':'')+
+    (b.address?'<p>آدرس: '+esc(b.address)+'</p>':'')+
+    (b.photo?'<img src="'+esc(b.photo)+'" alt="عکس بل">':'')+
+    '<table><thead><tr><th>جنس</th><th>واحد</th><th>تعداد</th><th>قیمت</th><th>جمع</th></tr></thead><tbody>'+rows+'</tbody></table>'+
+    '<p><b>مجموع:</b> '+num(b.total)+' '+c+' &nbsp; <b>پرداخت:</b> '+num(b.paid)+' &nbsp; <b style="color:var(--red)">باقی:</b> '+num(b.due)+'</p>'+
+    (b.note?'<p>یادداشت: '+esc(b.note)+'</p>':'')+
+    '<label style="display:block;margin-top:8px;font-size:12px">شماره واتساپ گیرنده (اختیاری)</label>'+
+    '<input id="waTo" type="tel" inputmode="tel" class="ltr" value="'+esc(b.phone||'')+'" placeholder="با کود کشور، مثلاً 937XXXXXXXX">'+
+    '<div class="mrow"><button type="button" class="mbtn green" id="vShare">📲 واتساپ</button><button type="button" class="mbtn" id="vPrint">🖨 چاپ</button></div>'+
+    '<div class="mrow"><button type="button" class="mbtn" id="vEdit">✎ ویرایش</button><button type="button" class="mbtn red" id="vDel">🗑 حذف</button><button type="button" class="mbtn" onclick="closeModal()">بستن</button></div>');
+  $('vShare').onclick=function(){shareBill(id,$('waTo').value.trim());};
+  $('vPrint').onclick=function(){printBill(id);};
+  $('vEdit').onclick=function(){closeModal();editBill(id);};
+  $('vDel').onclick=function(){
+    modal('<h3>حذف بل</h3><p style="text-align:center;margin:10px 0">بل شمارهٔ '+esc(b.page)+' ('+esc(b.name)+') برای همیشه حذف شود؟</p>'+
+      '<div class="mrow"><button type="button" class="mbtn" onclick="closeModal()">انصراف</button><button type="button" class="mbtn red" id="vDelOk">بله، حذف</button></div>');
+    $('vDelOk').onclick=function(){
+      var snap=JSON.stringify(bills);
+      bills=bills.filter(function(x){return x.id!==id;});
+      if(!save()){bills=JSON.parse(snap);toast('حذف ذخیره نشد','error');return;}
+      closeModal();render();toast('بل حذف شد','success');
+    };
+  };
+}
+function editBill(id){var b=findBill(id);if(!b)return;openForm(b.kind,b);}
+
+/* ===================== واتساپ / عکس بل ===================== */
+function billText(b){
+  var c=curOf(b),buy=b.kind==='purchase';
+  var L=[SHOP_NAME,'آدرس: '+SHOP_ADDR,'','🧾 بل '+(buy?'خرید از ':'فروش به ')+b.name,'تاریخ: '+b.date];
+  if(b.page)L.push('شماره بل: '+b.page);
+  L.push('');
+  (b.items||[]).forEach(function(i,n){L.push((n+1)+'. '+i.name+' — '+num(i.quantity)+' '+i.unit+' × '+num(i.price)+' = '+num(i.total)+' '+c);});
+  L.push('','مجموع: '+num(b.total)+' '+c,'پرداخت‌شده: '+num(b.paid)+' '+c,'باقی‌مانده: '+num(b.due)+' '+c);
+  return L.join('\n');
+}
+function dataUrlToBlob(u){
+  var m=String(u||'').match(/^data:([^;,]+)?(;base64)?,(.*)$/);
+  if(!m)throw new Error('bad data url');
+  var bin=m[2]?atob(m[3]):decodeURIComponent(m[3]),a=new Uint8Array(bin.length);
+  for(var i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);
+  return new Blob([a],{type:m[1]||'application/octet-stream'});
+}
+function makeBillImage(b){
+  var c=curOf(b),buy=b.kind==='purchase',items=b.items||[],curLabel=c==='USD'?'دالر':'افغانی';
+  var ROW=52,rowCount=Math.max(14,items.length),W=1000,INFO_Y=330,CUST_Y=440,TBL_Y=520,HEAD_H=62;
+  var bodyY=TBL_Y+HEAD_H,tblEnd=bodyY+rowCount*ROW,footY=tblEnd+34,H=footY+342;
+  var cv=document.createElement('canvas');cv.width=W;cv.height=H;
+  var ctx=cv.getContext('2d');if(!ctx)throw new Error('no canvas');
+  var NAVY='#123f94',BLUE='#1f5bc4',LIGHT='#eaf2fe',PALE='#f6f9ff',LINE='#3b66b8';
+  function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+  function box(x,y,w,h,r,fill,stroke,lw){rr(x,y,w,h,r);if(fill){ctx.fillStyle=fill;ctx.fill();}if(stroke){ctx.lineWidth=lw||2;ctx.strokeStyle=stroke;ctx.stroke();}}
+  function fit(t,mw,s,bold){do{ctx.font=(bold?'bold ':'')+s+'px Tahoma, sans-serif';s-=1;}while(s>12&&ctx.measureText(t).width>mw);}
+  function txt(t,x,y,al,col,s,bold,mw){ctx.direction='rtl';ctx.textAlign=al;ctx.fillStyle=col;if(mw)fit(t,mw,s,bold);else ctx.font=(bold?'bold ':'')+s+'px Tahoma, sans-serif';ctx.fillText(t,x,y);}
+  ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+  box(14,14,W-28,H-28,34,PALE,BLUE,5);box(26,26,W-52,H-52,26,null,'#9db9e8',2);
+  ctx.beginPath();ctx.moveTo(320,170);ctx.bezierCurveTo(320,95,420,60,470,48);ctx.bezierCurveTo(490,30,510,30,530,48);ctx.bezierCurveTo(580,60,680,95,680,170);ctx.closePath();
+  ctx.fillStyle=NAVY;ctx.fill();ctx.lineWidth=4;ctx.strokeStyle='#8fb0ea';ctx.stroke();
+  txt('بل',500,138,'center','#fff',84,true);
+  box(790,40,170,130,14,'#fff',NAVY,3);txt('تاج',875,92,'center',NAVY,34,true);txt('سلطان',875,136,'center',NAVY,34,true);
+  box(46,190,W-92,86,14,NAVY,null);txt(SHOP_NAME,W/2,247,'center','#fff',38,true,W-150);
+  txt('آدرس: '+SHOP_ADDR,W/2,316,'center','#16356f',25,true,W-120);
+  var pn=b.page?String(b.page):'';while(pn&&pn.length<4&&/^\d+$/.test(pn))pn='0'+pn;
+  box(560,INFO_Y+8,394,66,22,LIGHT,LINE,2);txt('شماره بل:',930,INFO_Y+52,'right','#16356f',26,true);txt(pn||'—',640,INFO_Y+54,'center','#c0191f',34,true);
+  box(46,INFO_Y+8,420,66,22,LIGHT,LINE,2);txt('تاریخ:',440,INFO_Y+52,'right','#16356f',26,true);txt(String(b.date||''),175,INFO_Y+52,'center','#16356f',28,true);
+  box(46,CUST_Y,W-92,66,22,'#fff',LINE,2);txt((buy?'نام تأمین‌کننده: ':'نام مشتری: ')+b.name,936,CUST_Y+44,'right','#10264f',28,true,W-140);
+  box(46,TBL_Y,W-92,HEAD_H+rowCount*ROW,14,'#fff',NAVY,3);
+  var X=[960,890,600,430,240,40];
+  ctx.save();rr(46,TBL_Y,W-92,HEAD_H+rowCount*ROW,14);ctx.clip();
+  ctx.fillStyle=NAVY;ctx.fillRect(46,TBL_Y,W-92,HEAD_H);
+  for(var r=0;r<rowCount;r++){var y=bodyY+r*ROW;ctx.fillStyle=r%2?'#e3eefc':'#f7faff';ctx.fillRect(46,y,W-92,ROW);ctx.fillStyle='#cfdff7';ctx.fillRect(X[1],y,X[0]-X[1],ROW);}
+  ctx.restore();
+  ctx.strokeStyle=NAVY;ctx.lineWidth=1.5;
+  for(var r2=1;r2<rowCount;r2++){var yy=bodyY+r2*ROW;ctx.beginPath();ctx.moveTo(46,yy);ctx.lineTo(W-46,yy);ctx.stroke();}
+  ctx.lineWidth=2.5;
+  for(var k=1;k<X.length-1;k++){ctx.beginPath();ctx.moveTo(X[k],TBL_Y);ctx.lineTo(X[k],tblEnd);ctx.stroke();}
+  ['شماره','اسم جنس','تعداد','قیمت','جمع شد'].forEach(function(h,i){txt(h,(X[i]+X[i+1])/2,TBL_Y+42,'center','#fff',28,true,X[i]-X[i+1]-8);});
+  for(var i=0;i<rowCount;i++){
+    var cy=bodyY+i*ROW+34;txt(String(i+1),(X[0]+X[1])/2,cy,'center',NAVY,26,true);
+    var it=items[i];if(!it)continue;
+    txt(String(it.name),X[1]-12,cy,'right','#000',25,true,X[1]-X[2]-24);
+    txt(num(it.quantity)+' '+it.unit,(X[2]+X[3])/2,cy,'center','#000',24,true,X[2]-X[3]-14);
+    txt(num(it.price),(X[3]+X[4])/2,cy,'center','#000',24,true,X[3]-X[4]-14);
+    txt(num(it.total),(X[4]+X[5])/2,cy,'center','#000',24,true,X[4]-X[5]-14);
+  }
+  function trow(label,val,y){box(300,y,420,74,16,LIGHT,LINE,2);txt(label,700,y+49,'right','#16356f',28,true);box(316,y+11,232,52,12,'#fff',LINE,2);txt(val+' '+curLabel,432,y+47,'center','#10264f',26,true,216);}
+  trow('جمع کل:',num(b.total),footY);trow('رسید پول:',num(b.paid),footY+84);trow('مبلغ نهایی:',num(b.due),footY+168);
+  box(738,footY,216,242,16,'#fff',LINE,2);txt('یادداشت:',938,footY+44,'right','#16356f',28,true);
+  ctx.setLineDash([6,6]);ctx.strokeStyle='#7d9ad0';ctx.lineWidth=1.5;
+  for(var n=0;n<4;n++){var ny=footY+96+n*44;ctx.beginPath();ctx.moveTo(752,ny);ctx.lineTo(940,ny);ctx.stroke();}
+  ctx.setLineDash([]);
+  if(b.note)txt(String(b.note),938,footY+88,'right','#10264f',20,true,180);
+  txt(PHONES[0],W-90,H-52,'right',NAVY,30,true);txt(PHONES[1],90,H-52,'left',NAVY,30,true);
+  return dataUrlToBlob(cv.toDataURL('image/jpeg',0.9));
+}
+function shareBill(id,phoneArg){
+  var b=findBill(id);if(!b){toast('بل پیدا نشد','error');return;}
+  var text=billText(b),phone=String(phoneArg||b.phone||'').replace(/\D/g,'');
+  try{
+    var blob=b.photo?dataUrlToBlob(b.photo):makeBillImage(b);
+    var file=new File([blob],'bill-'+(b.page||b.id)+'.jpg',{type:blob.type||'image/jpeg'});
+    if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+      navigator.share({files:[file],title:'بل '+(b.kind==='sale'?'فروش ':'خرید ')+b.name,text:text})
+        .then(function(){toast('بل برای ارسال آماده شد','success');})
+        ['catch'](function(e){if(e&&e.name==='AbortError')return;fallbackShare(b,text,blob,phone);});
+      return;
+    }
+    fallbackShare(b,text,blob,phone);
+  }catch(e){console.error(e);toast('آماده‌سازی عکس بل ناموفق بود','error');}
+}
+function fallbackShare(b,text,blob,phone){
+  var url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download='bill-'+(b.page||b.id)+'.jpg';a.style.display='none';document.body.appendChild(a);a.click();a.remove();
+  setTimeout(function(){URL.revokeObjectURL(url);},30000);
+  window.open(phone?'https://wa.me/'+phone+'?text='+encodeURIComponent(text):'https://api.whatsapp.com/send?text='+encodeURIComponent(text),'_blank');
+  toast('عکس بل دانلود شد؛ در واتساپ آن را هم پیوست کنید','success');
+}
+
+/* ===================== چاپ ===================== */
+function printBill(id){
+  var b=findBill(id);if(!b){toast('بل پیدا نشد','error');return;}
+  var c=curOf(b),buy=b.kind==='purchase';
+  var rows=(b.items||[]).map(function(i,n){return '<tr><td>'+(n+1)+'</td><td>'+esc(i.name)+'</td><td>'+num(i.quantity)+' '+esc(i.unit)+'</td><td>'+num(i.price)+'</td><td>'+num(i.total)+'</td></tr>';}).join('');
+  var html='<!DOCTYPE html><html lang="fa" dir="rtl"><head><meta charset="UTF-8"><title>بل '+esc(b.page)+'</title><style>'+
+    '@page{size:A4;margin:10mm}*{-webkit-print-color-adjust:exact;print-color-adjust:exact;box-sizing:border-box}'+
+    'body{font-family:Tahoma,sans-serif;margin:0 auto;padding:6mm;color:#0b1b33;font-size:13px;font-weight:900;border:2px solid #1e3a5f;border-radius:10px}'+
+    '.sh{text-align:center;border-bottom:1.5px dashed #1e3a5f;padding-bottom:5px;margin-bottom:6px}.sh b{display:block;font-size:17px}'+
+    'h1{font-size:18px;text-align:center;color:#fff;background:#1e3a5f;padding:8px;border-radius:8px;margin:6px 0}'+
+    '.meta{margin:3px 0;font-size:13px}table{width:100%;border-collapse:collapse;margin-top:10px}'+
+    'th,td{border:1.5px solid #1e3a5f;padding:6px 4px;font-size:13px;text-align:center;font-weight:900}th{background:#1e3a5f;color:#fff}'+
+    'tbody tr:nth-child(even){background:#eef3fa}.tot{margin-top:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}'+
+    '.tot div{border:2px solid #1e3a5f;border-radius:8px;padding:8px;text-align:center}.tot .d{border-color:#b42318;color:#b42318;background:#fdecea}'+
+    '.ph{margin-top:14px;display:flex;justify-content:space-between;font-size:13px}'+
+    '</style></head><body>'+
+    '<div class="sh"><b>'+esc(SHOP_NAME)+'</b>آدرس: '+esc(SHOP_ADDR)+'</div>'+
+    '<h1>🧾 بل '+(buy?'خرید':'فروش')+'</h1>'+
+    '<div class="meta">'+(buy?'تأمین‌کننده: ':'مشتری: ')+esc(b.name)+(b.phone?' — '+esc(b.phone):'')+'</div>'+
+    '<div class="meta">تاریخ: '+esc(b.date)+' &nbsp;|&nbsp; شماره بل: '+esc(b.page||'-')+(b.khata?' &nbsp;|&nbsp; کهاته: '+esc(b.khata):'')+'</div>'+
+    '<table><thead><tr><th>#</th><th>اسم جنس</th><th>تعداد</th><th>قیمت ('+c+')</th><th>جمع ('+c+')</th></tr></thead><tbody>'+rows+'</tbody></table>'+
+    '<div class="tot"><div>جمع کل<br>'+num(b.total)+' '+c+'</div><div>رسید پول<br>'+num(b.paid)+' '+c+'</div><div class="d">باقی‌مانده<br>'+num(b.due)+' '+c+'</div></div>'+
+    (b.note?'<div class="meta" style="margin-top:8px">یادداشت: '+esc(b.note)+'</div>':'')+
+    '<div class="ph"><span>'+PHONES[0]+'</span><span>'+PHONES[1]+'</span></div>'+
+    '<scr'+'ipt>window.onload=function(){window.print();};<\/scr'+'ipt></body></html>';
+  var w=window.open('','_blank');
+  if(!w){toast('پنجرهٔ چاپ مسدود شد؛ اجازهٔ pop-up را فعال کنید','error');return;}
+  w.document.open();w.document.write(html);w.document.close();
+}
+
+/* ===================== بکاپ / بازیابی ===================== */
+function exportBackup(){
+  var blob=new Blob([JSON.stringify({app:'sultan-bill',version:1,exportedAt:new Date().toISOString(),bills:bills})],{type:'application/json'});
+  var url=URL.createObjectURL(blob),a=document.createElement('a'),d=new Date();
+  a.href=url;a.download='backup-bill-sultan-'+d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'.json';
+  a.style.display='none';document.body.appendChild(a);a.click();a.remove();
+  setTimeout(function(){URL.revokeObjectURL(url);},30000);
+  toast('فایل بکاپ ساخته شد','success');
+}
+$('importFile').addEventListener('change',function(ev){
+  var f=ev.target.files&&ev.target.files[0];ev.target.value='';if(!f)return;
+  var rd=new FileReader();
+  rd.onload=function(){
+    try{
+      var o=JSON.parse(rd.result),list=Array.isArray(o)?o:o.bills;
+      if(!Array.isArray(list))throw new Error('bad');
+      list=list.filter(function(b){return b&&b.id&&b.kind&&Array.isArray(b.items);});
+      var have={};bills.forEach(function(b){have[b.id]=1;});
+      var add=list.filter(function(b){return !have[b.id];});
+      var snap=JSON.stringify(bills);
+      bills=bills.concat(add);
+      if(!save()){bills=JSON.parse(snap);toast('فضای ذخیره کافی نیست','error');return;}
+      render();toast(add.length+' بل جدید بازیابی شد ('+(list.length-add.length)+' تکراری رد شد)','success');
+    }catch(e){toast('فایل بکاپ معتبر نیست','error');}
+  };
+  rd.readAsText(f);
+});
+/* وارد کردن بل‌ها از بکاپ برنامهٔ کهاته (فایل JSON قدیمی) */
+function importFromKhata(o){
+  var out=[];
+  (Array.isArray(o)?o:(o.debtors||o.data||[])).forEach(function(d){
+    ['purchaseBills','salesBills'].forEach(function(k){
+      (d[k]||[]).forEach(function(b){
+        out.push({id:b.id,kind:b.kind==='sale'?'sale':'purchase',name:d.name,phone:d.phone||'',address:d.address||'',khata:d.khataNumber||'',
+          date:b.date,page:String(b.page||''),currency:b.currency==='USD'?'USD':'AFN',total:+b.total||0,paid:+b.paid||0,due:+b.due||0,
+          note:b.note||'',photo:b.photo||'',items:b.items||[],createdAt:Date.now()});
+      });
+    });
+  });
+  return out;
+}
+function openMenu(){
+  modal('<h3>⚙️ منو</h3><div class="mrow" style="flex-direction:column">'+
+    '<button type="button" class="mbtn" id="mBackup" style="padding:11px">📥 گرفتن بکاپ</button>'+
+    '<button type="button" class="mbtn" id="mImport" style="padding:11px">📤 بازیابی از بکاپ بل</button>'+
+    '<button type="button" class="mbtn" id="mKhata" style="padding:11px">🔁 آوردن بل‌ها از بکاپ برنامهٔ کهاته</button>'+
+    '<button type="button" class="mbtn" onclick="closeModal()" style="padding:11px">بستن</button></div>'+
+    '<p style="font-size:11px;color:var(--muted);margin-top:8px;text-align:center">اطلاعات فقط در همین مرورگر ذخیره می‌شود؛ مرتب بکاپ بگیرید.</p>');
+  $('mBackup').onclick=function(){closeModal();exportBackup();};
+  $('mImport').onclick=function(){closeModal();$('importFile').click();};
+  $('mKhata').onclick=function(){
+    closeModal();
+    var inp=document.createElement('input');inp.type='file';inp.accept='.json';
+    inp.onchange=function(){
+      var f=inp.files&&inp.files[0];if(!f)return;
+      var rd=new FileReader();
+      rd.onload=function(){
+        try{
+          var o=JSON.parse(rd.result),list=importFromKhata(o);
+          if(!list.length){toast('در این فایل بلی پیدا نشد','error');return;}
+          var have={};bills.forEach(function(b){have[b.id]=1;});
+          var add=list.filter(function(b){return b.id&&!have[b.id];});
+          var snap=JSON.stringify(bills);bills=bills.concat(add);
+          if(!save()){bills=JSON.parse(snap);toast('فضای ذخیره کافی نیست','error');return;}
+          render();toast(add.length+' بل از برنامهٔ کهاته آورده شد','success');
+        }catch(e){toast('فایل معتبر نیست','error');}
+      };
+      rd.readAsText(f);
+    };
+    inp.click();
+  };
+}
+$('btnMenu').onclick=openMenu;
+
+/* ===================== حالت شب ===================== */
+function applyDark(){var on=false;try{on=localStorage.getItem('sultan_bill_dark')==='1';}catch(e){}document.body.classList.toggle('dark',on);$('btnDark').textContent=on?'☀️':'🌙';}
+$('btnDark').onclick=function(){var on=document.body.classList.contains('dark');try{localStorage.setItem('sultan_bill_dark',on?'0':'1');}catch(e){}applyDark();};
+
+/* ===================== شروع ===================== */
+load();applyDark();render();
+if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0){
+  window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js')['catch'](function(){});});
+}
+</script>
+</body>
+</html>
